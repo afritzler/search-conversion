@@ -121,12 +121,13 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		var replies []interface{}
 		for _, product := range request.Products {
 			client := http.Client{
-				Timeout: time.Second * 10,
+				Timeout: time.Second * 15,
 			}
 
 			req, err := http.NewRequest(http.MethodGet, HelpSearchAPIURL, nil)
 			if err != nil {
-				log.Fatal(err)
+				replies = append(replies, generateTextMessage("Looks like there was a hick-up in my though process. Could you please try again?", 0))
+				break
 			}
 
 			req.Header.Set("User-Agent", "help-skill")
