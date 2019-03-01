@@ -163,25 +163,74 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 				max = product.MaxResults
 			}
 			switch responseType {
-			case types.BUTTONSTYPE:
-				var buttons []types.Button
-				for i := 0; i < max; i++ {
-					r := response.Data.Results[i]
+			case types.ButtonsType:
+				if len(response.Data.Results) > 0 {
+					var buttons []types.Button
+					for i := 0; i < max; i++ {
+						r := response.Data.Results[i]
+						buttons = append(buttons, types.Button{
+							Title: r.Title,
+							Type:  "web_url",
+							Value: HelpBaseURL + r.URL,
+						})
+					}
+					replies = append(replies, types.Buttons{
+						Type: types.ButtonsType,
+						Content: types.ButtonsContent{
+							Title:   "Here is what I found:",
+							Buttons: buttons,
+						},
+					})
+				}
+			case types.TextType:
+				if len(response.Data.Results) > 0 {
+					replies = append(replies, generateTextMessage(response.Data.Results[0].URL, 0))
+				}
+			case types.CardType:
+				if len(response.Data.Results) > 0 {
+					var buttons []types.Button
+					r := response.Data.Results[0]
 					buttons = append(buttons, types.Button{
 						Title: r.Title,
 						Type:  "web_url",
 						Value: HelpBaseURL + r.URL,
 					})
+					replies = append(replies, types.Card{
+						Type: types.CardType,
+						Content: types.CardContent{
+							Title:    response.Data.Results[0].Title,
+							SubTitle: response.Data.Results[0].Description,
+							ImageURL: "",
+							Buttons:  buttons,
+						},
+					})
 				}
-				replies = append(replies, types.Buttons{
-					Type: types.BUTTONSTYPE,
-					Content: types.ButtonsContent{
-						Title:   "Results for: " + product.Name,
-						Buttons: buttons,
-					},
-				})
+			case types.CarouselType:
+				if len(response.Data.Results) > 0 {
+					var content []types.CardContent
+					for i := 0; i < max; i++ {
+						var buttons []types.Button
+						r := response.Data.Results[i]
+						buttons = append(buttons, types.Button{
+							Title: r.Title,
+							Type:  "web_url",
+							Value: HelpBaseURL + r.URL,
+						})
+						content = append(content, types.CardContent{
+							Title:    r.Title,
+							SubTitle: r.Description,
+							ImageURL: "",
+							Buttons:  buttons,
+						})
+					}
+					replies = append(replies, types.Carousel{
+						Type:    types.CarouselType,
+						Content: content,
+					})
+				}
 			default:
-				fmt.Printf("not implemented\n")
+				// didn't find any matching type
+				replies = append(replies, generateTextMessage("Sorry, but this response type is not supported!", 0))
 			}
 		}
 		output, err := json.Marshal(types.Replies{Replies: replies})
@@ -194,5 +243,13 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("StatusMethodNotAllowed"))
+	}
+}
+
+func generateTextMessage(text string, delay int) types.TextMessage {
+	return types.TextMessage{
+		Type:    types.ButtonsType,
+		Content: text,
+		Delay:   delay,
 	}
 }

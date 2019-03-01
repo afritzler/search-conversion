@@ -14,17 +14,14 @@
 
 package types
 
-const BUTTONSTYPE = "buttons"
-
-// Message defines commen attributes for all response types.
-type Message struct {
-	Type string `json:"type"`
-}
-
-// StringContent is a generic type for string based content values.
-type StringContent struct {
-	Content string `json:"content"`
-}
+const (
+	ButtonsType      = "buttons"
+	TextType         = "text"
+	CardType         = "card"
+	QuickRepliesType = "quickReplies"
+	CarouselType     = "carousel"
+	ListType         = "list"
+)
 
 // TextMessage defines a response of type text message.
 // Example:
@@ -34,9 +31,9 @@ type StringContent struct {
 //	"content": "MY_TEXT",
 // }
 type TextMessage struct {
-	Type string `json:"type"`
-	StringContent
-	Delay int `json:"delay,omitempty"`
+	Type    string `json:"type"`
+	Content string `json:"content"`
+	Delay   int    `json:"delay,omitempty"`
 }
 
 // QuickReplies defines a response of type text message.
@@ -153,13 +150,8 @@ type ButtonsContent struct {
 //     ]
 // }
 type Carousel struct {
-	Type    string          `json:"type"`
-	Content CarouselContent `json:"content"`
-}
-
-// CarouselContent defines a subtype of the Carousel type
-type CarouselContent struct {
-	CardContent
+	Type    string        `json:"type"`
+	Content []CardContent `json:"content"`
 }
 
 // List defines a response of type buttons.
@@ -197,13 +189,8 @@ type List struct {
 
 // ListContent defines a subtype of the List type.
 type ListContent struct {
-	Elements []Element `json:"elements"`
-	Buttons  []Button  `json:"buttons"`
-}
-
-// Element defines a subtype of the ListContent type.
-type Element struct {
-	CarouselContent
+	Elements []CardContent `json:"elements"`
+	Buttons  []Button      `json:"buttons"`
 }
 
 // Picture defines a response of type buttons.
@@ -213,8 +200,8 @@ type Element struct {
 //     "content": "IMAGE_URL",
 // }
 type Picture struct {
-	Type string `json:"type"`
-	StringContent
+	Type    string `json:"type"`
+	Content string `json:"content"`
 }
 
 // Video defines a response of type buttons.
@@ -224,8 +211,8 @@ type Picture struct {
 //     "content": "VIDEO_URL",
 // }
 type Video struct {
-	Type string `json:"type"`
-	StringContent
+	Type    string `json:"type"`
+	Content string `json:"content"`
 }
 
 // Request is a definition of the request type.
