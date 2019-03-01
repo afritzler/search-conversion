@@ -1,0 +1,20 @@
+{
+    "response_type": "<RESPONSE_TYPE>",
+    "products": [
+        {
+            "name": "<PRODUCT_1>",
+            "version": "<PRODUCT_1_VERSION>",
+            "max_results": <RESULT_COUNT>
+        },
+        {
+            "name": "<PRODUCT_2>",
+            "version": "<PRODUCT_2_VERSION>",
+            "max_results": <RESULT_COUNT>
+        }
+     ],
+    "conversation": {
+        "memory": {
+            "query": "<ASK_ME_SOMETHING>"
+     }
+    }
+ }
