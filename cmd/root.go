@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/afritzler/help-skill/pkg/types"
+	"github.com/afritzler/help-skill/pkg/utils"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,8 +38,8 @@ const HelpBaseURL = "https://help.sap.com"
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "help-skill",
-	Short: "Todo",
-	Long:  `Todo`,
+	Short: fmt.Sprintf("help-skill Version %v", utils.Version),
+	Long:  fmt.Sprintf("help-skill Version %v", utils.Version),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("starting to serve ...")
 		port := os.Getenv("PORT")
