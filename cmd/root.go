@@ -49,7 +49,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		log.Printf("starting to serve on %v:%v...\n", name, port)
+		log.Printf("starting to serve on http://%v:%v...\n", name, port)
 		registerHandlers()
 		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 	},
