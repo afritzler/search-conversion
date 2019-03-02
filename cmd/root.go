@@ -23,8 +23,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/afritzler/help-skill/pkg/types"
-	"github.com/afritzler/help-skill/pkg/utils"
+	"github.com/afritzler/search-conversion/pkg/types"
+	"github.com/afritzler/search-conversion/pkg/utils"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,15 +37,19 @@ const HelpBaseURL = "https://help.sap.com"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "help-skill",
-	Short: fmt.Sprintf("help-skill Version %v", utils.Version),
-	Long:  fmt.Sprintf("help-skill Version %v", utils.Version),
+	Use:   "search-conversion",
+	Short: fmt.Sprintf("search-conversion Version %v", utils.Version),
+	Long:  fmt.Sprintf("search-conversion Version %v", utils.Version),
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("starting to serve ...")
 		port := os.Getenv("PORT")
 		if port == "" {
 			port = "8080"
 		}
+		name, err := os.Hostname()
+		if err != nil {
+			panic(err)
+		}
+		log.Printf("starting to serve on %v:%v...\n", name, port)
 		registerHandlers()
 		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 	},
@@ -127,12 +131,11 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 			req, err := http.NewRequest(http.MethodGet, HelpSearchAPIURL, nil)
 			if err != nil {
-				replies = append(replies, generateTextMessage("Looks like there was a hick-up in my though process. Could you please try again?", 0))
+				replies = append(replies, generateTextMessage(types.RequestErrorMessage, 0))
 				break
 			}
 
-			req.Header.Set("User-Agent", "help-skill")
-
+			req.Header.Set("User-Agent", "search-conversion")
 			q := req.URL.Query()
 			q.Add("state", "PRODUCTION")
 			q.Add("language", "en-US")
@@ -143,20 +146,22 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 			res, getErr := client.Do(req)
 			if getErr != nil {
-				log.Fatal(getErr)
+				replies = append(replies, generateTextMessage(types.RequestErrorMessage, 0))
+				break
 			}
 
 			body, readErr := ioutil.ReadAll(res.Body)
 			if readErr != nil {
-				log.Fatal(readErr)
+				replies = append(replies, generateTextMessage(types.RequestErrorMessage, 0))
+				break
 			}
 			defer r.Body.Close()
 
 			response := types.Response{}
 			err = json.Unmarshal([]byte(body), &response)
 			if err != nil {
-				println(err)
-				return
+				replies = append(replies, generateTextMessage(types.RequestErrorMessage, 0))
+				break
 			}
 			var max int
 			if product.MaxResults > len(response.Data.Results) {

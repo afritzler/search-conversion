@@ -1,7 +1,7 @@
-# help-skill
+# search-conversion
 
 # Installation
 
 ```bash
-go get -u github.com/afritzler/help-skill
+go get -u github.com/afritzler/search-conversion
 ```

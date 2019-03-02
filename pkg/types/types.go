@@ -23,6 +23,10 @@ const (
 	ListType         = "list"
 )
 
+const (
+	RequestErrorMessage = "Looks like there was a hick-up in my though process. Could you please try again?"
+)
+
 // TextMessage defines a response of type text message.
 // Example:
 // {

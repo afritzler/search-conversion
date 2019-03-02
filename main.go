@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/afritzler/help-skill/cmd"
+import "github.com/afritzler/search-conversion/cmd"
 
 func main() {
 	cmd.Execute()
