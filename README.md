@@ -15,6 +15,8 @@ git clone https://github.com/afritzler/search-conversion.git
 cd search-conversion
 ```
 
+## Usage
+
 Build the app via `make` and start the service
 
 ```bash
@@ -28,8 +30,6 @@ by setting the `PORT` environment variable.
 export PORT=5000
 ./search-conversion
 ```
-
-## Usage
 
 Adjust the `examples/request.json` to your needs and run a `curl` against either `localhost`
 or your corresponding service URL.
