@@ -20,6 +20,8 @@ cd search-conversion
 Build the app via `make` and start the service
 
 ```bash
+cd search-conversion
+make
 ./search-conversion
 ```
 
