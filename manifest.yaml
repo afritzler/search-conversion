@@ -6,3 +6,4 @@ applications:
     random-route: true
     env:
       GOVERSION: go1.11
+      GOPACKAGENAME: github.com/afritzler/search-conversion
