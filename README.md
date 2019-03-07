@@ -38,3 +38,23 @@ or your corresponding service URL.
 curl -vX POST https://YOUR_SERVICE_URL/search -d @examples/request.json \
 --header "Content-Type: application/json"
 ```
+
+## Deploy to CloudFoundry
+
+To deploy the service to a CloudFoundry environment
+
+```bash
+git clone https://github.com/afritzler/search-conversion.git
+cd search-conversion
+cf push
+```
+
+## Deploy to Google AppEngine
+
+To deploy the service to the Google AppEngine
+
+```bash
+git clone https://github.com/afritzler/search-conversion.git
+cd search-conversion
+gcloud app deploy
+```

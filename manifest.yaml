@@ -1,0 +1,8 @@
+---
+applications:
+  - name: search-conversion
+    memory: 64M
+    instances: 1
+    random-route: true
+    env:
+      GOVERSION: go1.11
