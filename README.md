@@ -1,5 +1,7 @@
 # search-conversion
 
+The search-conversion service transforms an SAP Help Portal Search API response into an [SAP Conversational AI](https://cai.tools.sap) readable format.
+
 ## Installation
 
 To run the service locally, first either get it via `go get`
