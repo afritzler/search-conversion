@@ -123,6 +123,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		responseType := request.ResponseType
+		language := "en-US"
+		if request.Language != "" {
+			language = request.Language
+		}
 		var replies []interface{}
 		for _, product := range request.Products {
 			client := http.Client{
@@ -136,12 +140,13 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			req.Header.Set("User-Agent", "search-conversion")
+			query := request.Converstation.Memory.Query
 			q := req.URL.Query()
 			q.Add("state", "PRODUCTION")
-			q.Add("language", "en-US")
 			q.Add("product", product.Name)
-			q.Add("q", request.Converstation.Memory.Query)
+			q.Add("q", query)
 			q.Add("version", product.Version)
+			q.Add("language", language)
 			req.URL.RawQuery = q.Encode()
 
 			res, getErr := client.Do(req)
@@ -163,6 +168,12 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 				replies = append(replies, generateTextMessage(types.RequestErrorMessage, 0))
 				break
 			}
+
+			if len(response.Data.Results) == 0 {
+				replies = append(replies, generateTextMessage(fmt.Sprintf("Sorry, but I couldn't find anything for '%v' in the documentation! Please try rewording your question!", query), 0))
+				break
+			}
+
 			var max int
 			if product.MaxResults > len(response.Data.Results) {
 				max = len(response.Data.Results)
@@ -171,70 +182,62 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			switch responseType {
 			case types.ButtonsType:
-				if len(response.Data.Results) > 0 {
-					var buttons []types.Button
-					for i := 0; i < max; i++ {
-						r := response.Data.Results[i]
-						buttons = append(buttons, types.Button{
-							Title: r.Title,
-							Type:  "web_url",
-							Value: HelpBaseURL + r.URL,
-						})
-					}
-					replies = append(replies, types.Buttons{
-						Type: types.ButtonsType,
-						Content: types.ButtonsContent{
-							Title:   "Here is what I found:",
-							Buttons: buttons,
-						},
-					})
-				}
-			case types.TextType:
-				if len(response.Data.Results) > 0 {
-					replies = append(replies, generateTextMessage(response.Data.Results[0].URL, 0))
-				}
-			case types.CardType:
-				if len(response.Data.Results) > 0 {
-					var buttons []types.Button
-					r := response.Data.Results[0]
+				var buttons []types.Button
+				for i := 0; i < max; i++ {
+					r := response.Data.Results[i]
 					buttons = append(buttons, types.Button{
 						Title: r.Title,
 						Type:  "web_url",
 						Value: HelpBaseURL + r.URL,
 					})
-					replies = append(replies, types.Card{
-						Type: types.CardType,
-						Content: types.CardContent{
-							Title:    response.Data.Results[0].Title,
-							SubTitle: response.Data.Results[0].Description,
-							ImageURL: "",
-							Buttons:  buttons,
-						},
-					})
 				}
+				replies = append(replies, types.Buttons{
+					Type: types.ButtonsType,
+					Content: types.ButtonsContent{
+						Title:   "Here is what I found:",
+						Buttons: buttons,
+					},
+				})
+			case types.TextType:
+				replies = append(replies, generateTextMessage(response.Data.Results[0].URL, 0))
+			case types.CardType:
+				var buttons []types.Button
+				r := response.Data.Results[0]
+				buttons = append(buttons, types.Button{
+					Title: r.Title,
+					Type:  "web_url",
+					Value: HelpBaseURL + r.URL,
+				})
+				replies = append(replies, types.Card{
+					Type: types.CardType,
+					Content: types.CardContent{
+						Title:    response.Data.Results[0].Title,
+						SubTitle: response.Data.Results[0].Description,
+						ImageURL: "",
+						Buttons:  buttons,
+					},
+				})
 			case types.CarouselType:
-				if len(response.Data.Results) > 0 {
-					var content []types.CardContent
-					for i := 0; i < max; i++ {
-						var buttons []types.Button
-						r := response.Data.Results[i]
-						buttons = append(buttons, types.Button{
-							Title: r.Title,
-							Type:  "web_url",
-							Value: HelpBaseURL + r.URL,
-						})
-						content = append(content, types.CardContent{
-							Title:    r.Title,
-							SubTitle: r.Description,
-							ImageURL: "",
-							Buttons:  buttons,
-						})
-					}
-					replies = append(replies, types.Carousel{
-						Type:    types.CarouselType,
-						Content: content,
+				var content []types.CardContent
+				for i := 0; i < max; i++ {
+					var buttons []types.Button
+					r := response.Data.Results[i]
+					buttons = append(buttons, types.Button{
+						Title: r.Title,
+						Type:  "web_url",
+						Value: HelpBaseURL + r.URL,
+					})
+					content = append(content, types.CardContent{
+						Title:    r.Title,
+						SubTitle: r.Description,
+						ImageURL: "",
+						Buttons:  buttons,
 					})
 				}
+				replies = append(replies, types.Carousel{
+					Type:    types.CarouselType,
+					Content: content,
+				})
 			default:
 				// didn't find any matching type
 				replies = append(replies, generateTextMessage("Sorry, but this response type is not supported!", 0))

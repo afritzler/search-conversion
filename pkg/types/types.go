@@ -238,6 +238,7 @@ type Video struct {
 // }
 type Request struct {
 	ResponseType  string       `json:"response_type"`
+	Language      string       `json:"language,omitempty"`
 	Products      []Product    `json:"products"`
 	Converstation Conversation `json:"conversation"`
 }
