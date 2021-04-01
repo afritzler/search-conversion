@@ -5,7 +5,7 @@ COPY . .
 
 RUN make build-linux
 
-FROM alpine:3.8 AS base
+FROM alpine:3.13.4 AS base
 
 WORKDIR /
 
