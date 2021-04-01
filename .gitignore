@@ -12,3 +12,5 @@
 *.out
 
 search-conversion*
+.vscode/
+.idea/
