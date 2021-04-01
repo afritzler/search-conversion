@@ -1,2 +1,2 @@
 env: standard
-runtime: go111
+runtime: go115
