@@ -5,7 +5,7 @@ COPY . .
 
 RUN make build-linux
 
-FROM alpine:3.15.0
+FROM alpine:3.15.1
 
 WORKDIR /
 
