@@ -1,14 +1,36 @@
-FROM golang:1.18.5 as builder
+FROM --platform=$BUILDPLATFORM golang:1.18.5 as builder
 
-WORKDIR /go/src/github.com/afritzler/search-conversion
-COPY . .
+ARG GOARCH=''
 
-RUN make build-linux
+WORKDIR /workspace
+# Copy the Go Modules manifests
+COPY go.mod go.mod
+COPY go.sum go.sum
 
-FROM alpine:3.16.1
+# cache deps before building and copying source so that we don't need to re-download as much
+# and so that source changes don't invalidate our downloaded layer
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg \
+    go mod download
 
+# Copy the go source
+COPY main.go main.go
+COPY pkg/ pkg/
+COPY cmd/ cmd/
+
+ARG TARGETOS
+ARG TARGETARCH
+
+# Build
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg \
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GO111MODULE=on go build -ldflags="-s -w" -a -o search-conversion main.go
+
+# Use distroless as minimal base image to package the manager binary
+# Refer to https://github.com/GoogleContainerTools/distroless for more details
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-
-COPY --from=builder /go/src/github.com/afritzler/search-conversion/search-conversion_linux_amd64 /search-conversion
+COPY --from=builder /workspace/search-conversion .
+USER 65532:65532
 
 ENTRYPOINT ["/search-conversion"]
