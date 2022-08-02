@@ -101,14 +101,18 @@ func registerHandlers() {
 
 func returnOK(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	if code, err := w.Write([]byte("OK")); err != nil {
+		log.Fatalf("failed to write OK response - got %d: %v", code, err)
+	}
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		if code, err := w.Write([]byte("OK")); err != nil {
+			log.Fatalf("failed to write OK response - got %d: %v", code, err)
+		}
 	case "POST":
 		body, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
@@ -249,10 +253,14 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("content-type", "application/json")
-		w.Write(output)
+		if code, err := w.Write(output); err != nil {
+			log.Fatalf("failed to write output - got %d: %v", code, err)
+		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("StatusMethodNotAllowed"))
+		if code, err := w.Write([]byte("StatusMethodNotAllowed")); err != nil {
+			log.Fatalf("failed to write default response - got %d: %v", code, err)
+		}
 	}
 }
 
