@@ -22,6 +22,9 @@ clean:
 		rm -f $(BINARY_WIN)
 		rm -f $(BINARY_DARWIN)
 
+lint:
+		golangci-lint run ./...
+
 run:
 		$(GOBUILD) -o $(BINARY_NAME) -v ./...
 		./$(BINARY_NAME)
