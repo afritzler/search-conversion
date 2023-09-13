@@ -40,7 +40,7 @@ jobs:
           flavor: |
             latest=${{ github.ref == 'refs/heads/master' }}
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:latest
           platforms: ${{env.platforms}}
