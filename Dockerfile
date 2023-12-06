@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.21.4 as builder
+FROM --platform=$BUILDPLATFORM golang:1.21.5 as builder
 
 ARG GOARCH=''
 
