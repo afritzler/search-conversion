@@ -17,7 +17,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -114,7 +114,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatalf("failed to write OK response - got %d: %v", code, err)
 		}
 	case "POST":
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -159,7 +159,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 
-			body, readErr := ioutil.ReadAll(res.Body)
+			body, readErr := io.ReadAll(res.Body)
 			if readErr != nil {
 				replies = append(replies, generateTextMessage(types.RequestErrorMessage, 0))
 				break

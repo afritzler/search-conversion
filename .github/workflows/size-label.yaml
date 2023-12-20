@@ -1,11 +1,17 @@
 name: Size Label
 
 on:
-  pull_request_target:
-    types: [opened, reopened, synchronize]
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
 
 jobs:
   size-label:
+    permissions:
+      contents: read
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: size-label
